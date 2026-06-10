@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plan Semanal – Bajar de Peso 30+</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0f1e;
+    --card: rgba(255,255,255,0.03);
+    --border: rgba(255,255,255,0.07);
+    --text: #e2e8f0;
+    --muted: #475569;
+    --faint: #1e293b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* SELECTOR SCREEN */
+  #selector {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+    background: linear-gradient(160deg, #0a0f1e 0%, #1a0a2e 100%);
+  }
+  .eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 5px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .selector-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 32px;
+    text-align: center;
+    background: linear-gradient(90deg, #34d399, #f472b6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+    line-height: 1.2;
+  }
+  .selector-sub {
+    color: var(--muted);
+    font-size: 13px;
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  .selector-label {
+    color: #94a3b8;
+    font-size: 15px;
+    margin-bottom: 20px;
+  }
+  .selector-btns {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+    max-width: 320px;
+  }
+  .selector-btn {
+    flex: 1;
+    padding: 24px 16px;
+    border-radius: 18px;
+    border: 2px solid;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .selector-btn:hover { transform: translateY(-2px); }
+  .selector-btn .emoji { font-size: 38px; }
+  .selector-btn .sex-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .selector-btn .kcal-label { font-size: 11px; color: var(--muted); text-align: center; }
+  #btn-hombre { border-color: rgba(52,211,153,0.3); }
+  #btn-hombre .sex-label { color: #34d399; }
+  #btn-hombre:hover { border-color: #34d399; background: rgba(52,211,153,0.07); }
+  #btn-mujer { border-color: rgba(244,114,182,0.3); }
+  #btn-mujer .sex-label { color: #f472b6; }
+  #btn-mujer:hover { border-color: #f472b6; background: rgba(244,114,182,0.07); }
+
+  /* PLAN SCREEN */
+  #plan { display: none; }
+  #plan.visible { display: block; }
+
+  /* HEADER */
+  .plan-header {
+    padding: 16px 18px 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 12px;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    transition: background 0.2s;
+  }
+  .back-btn:hover { background: rgba(255,255,255,0.09); }
+  .header-center { text-align: center; flex: 1; }
+  .header-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 4px;
+    margin-bottom: 2px;
+  }
+  .header-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 17px;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .header-right {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    text-align: right;
+    min-width: 60px;
+  }
+
+  /* DAYS */
+  .days-row {
+    display: flex;
+    overflow-x: auto;
+    gap: 6px;
+    padding: 12px 14px 4px;
+    scrollbar-width: none;
+  }
+  .days-row::-webkit-scrollbar { display: none; }
+  .day-btn {
+    flex: 0 0 auto;
+    padding: 8px 13px;
+    border-radius: 10px;
+    border: 2px solid var(--border);
+    background: var(--card);
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+    color: var(--muted);
+  }
+
+  /* DAY TITLE */
+  .day-header {
+    padding: 10px 16px 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .day-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+  }
+  .kcal-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    border-radius: 20px;
+    padding: 4px 13px;
+    border: 1px solid;
+  }
+  .progress-wrap { padding: 6px 16px 2px; }
+  .progress-bar {
+    background: rgba(255,255,255,0.06);
+    border-radius: 6px;
+    height: 5px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.4s ease;
+  }
+  .progress-note {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    margin-top: 3px;
+  }
+
+  /* MEALS */
+  .meals { padding: 6px 16px 20px; display: flex; flex-direction: column; gap: 10px; }
+  .meal-card {
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    overflow: hidden;
+    transition: border-color 0.2s;
+    cursor: pointer;
+  }
+  .meal-card.open { background: rgba(255,255,255,0.05); }
+  .meal-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 13px;
+  }
+  .meal-left { display: flex; align-items: center; gap: 10px; }
+  .meal-icon {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+    flex-shrink: 0;
+  }
+  .meal-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    margin-bottom: 2px;
+  }
+  .meal-name { font-size: 14px; font-weight: 600; color: var(--text); }
+  .meal-right { display: flex; align-items: center; gap: 7px; }
+  .meal-kcal { font-family: 'DM Mono', monospace; font-size: 12px; }
+  .meal-arrow { color: var(--muted); font-size: 14px; transition: transform 0.2s; }
+  .meal-card.open .meal-arrow { transform: rotate(180deg); }
+
+  .meal-items {
+    border-top: 1px solid rgba(255,255,255,0.05);
+    padding: 11px 13px 13px;
+    display: none;
+  }
+  .meal-card.open .meal-items { display: block; }
+  .meal-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 13px;
+  }
+  .meal-item:last-child { border-bottom: none; }
+  .meal-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+
+  /* TIPS */
+  .tips-box {
+    margin: 0 16px 36px;
+    border-radius: 14px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 14px;
+  }
+  .tips-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    margin-bottom: 10px;
+  }
+  .tip-row {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 5px 0;
+    font-size: 13px;
+  }
+
+  /* HOMBRE THEME */
+  body.hombre .plan-header { background: linear-gradient(90deg, #0f2744, #0a1f1a); }
+  body.hombre { background: linear-gradient(160deg, #0a0f1e 0%, #0f1f35 50%, #0a1a14 100%); }
+  body.hombre .header-eyebrow { color: #064e3b; }
+  body.hombre .header-title { background: linear-gradient(90deg,#34d399,#60a5fa); }
+  body.hombre .header-right { color: #064e3b; }
+  body.hombre .day-btn.active { border-color: #34d399; background: linear-gradient(135deg,#065f46,#0f4c3a); color: #34d399; }
+  body.hombre .day-title { color: #e2e8f0; }
+  body.hombre .kcal-badge { background: rgba(52,211,153,0.1); border-color: rgba(52,211,153,0.25); color: #34d399; }
+  body.hombre .progress-fill { background: linear-gradient(90deg,#34d399,#60a5fa); }
+  body.hombre .progress-fill.over { background: linear-gradient(90deg,#f97316,#ef4444); }
+  body.hombre .progress-note { color: #064e3b; }
+  body.hombre .tips-eyebrow { color: #064e3b; }
+  body.hombre .tip-row { color: #94a3b8; }
+
+  /* MUJER THEME */
+  body.mujer .plan-header { background: linear-gradient(90deg,#2d1b4e,#1a0a2e); }
+  body.mujer { background: linear-gradient(160deg,#1a0a2e 0%,#2d1b4e 40%,#0f1a2e 100%); }
+  body.mujer .header-eyebrow { color: #6b21a8; }
+  body.mujer .header-title { background: linear-gradient(90deg,#f472b6,#a78bfa); }
+  body.mujer .header-right { color: #6b21a8; }
+  body.mujer .day-btn.active { border-color: #f472b6; background: linear-gradient(135deg,#6b21a8,#4c1d95); color: #f472b6; }
+  body.mujer .day-title { color: #f3e8ff; }
+  body.mujer .kcal-badge { background: rgba(244,114,182,0.1); border-color: rgba(244,114,182,0.25); color: #f472b6; }
+  body.mujer .progress-fill { background: linear-gradient(90deg,#f472b6,#a78bfa); }
+  body.mujer .progress-fill.over { background: linear-gradient(90deg,#f97316,#ef4444); }
+  body.mujer .progress-note { color: #7c3aed; }
+  body.mujer .tips-eyebrow { color: #7c3aed; }
+  body.mujer .tip-row { color: #a78bfa; }
+</style>
+</head>
+<body>
+
+<!-- SELECTOR -->
+<div id="selector">
+  <div class="eyebrow">Plan Nutricional</div>
+  <h1 class="selector-title">Bajar de Peso · 30+</h1>
+  <p class="selector-sub">4 comidas · Déficit fuerte · Semana completa</p>
+  <p class="selector-label">¿Para quién es el plan?</p>
+  <div class="selector-btns">
+    <button class="selector-btn" id="btn-hombre" onclick="selectSex('hombre')">
+      <span class="emoji">👨</span>
+      <span class="sex-label">Hombre</span>
+      <span class="kcal-label">1.200–1.400 kcal/día</span>
+    </button>
+    <button class="selector-btn" id="btn-mujer" onclick="selectSex('mujer')">
+      <span class="emoji">👩</span>
+      <span class="sex-label">Mujer</span>
+      <span class="kcal-label">1.000–1.200 kcal/día</span>
+    </button>
+  </div>
+</div>
+
+<!-- PLAN -->
+<div id="plan">
+  <div class="plan-header">
+    <button class="back-btn" onclick="goBack()">← Cambiar</button>
+    <div class="header-center">
+      <div class="header-eyebrow">PLAN NUTRICIONAL</div>
+      <div class="header-title" id="header-title"></div>
+    </div>
+    <div class="header-right" id="header-right"></div>
+  </div>
+
+  <div class="days-row" id="days-row"></div>
+
+  <div class="day-header">
+    <h2 class="day-title" id="day-title"></h2>
+    <div class="kcal-badge" id="kcal-badge"></div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="progress-note" id="progress-note"></div>
+  </div>
+
+  <div class="meals" id="meals"></div>
+
+  <div class="tips-box">
+    <div class="tips-eyebrow">REGLAS DIARIAS</div>
+    <div id="tips-list"></div>
+  </div>
+</div>
+
+<script>
+const data = {
+  hombre: {
+    title: "👨 Hombre · 30+",
+    kcalRange: "1.200–1.400 kcal",
+    kcalTarget: 1400,
+    mealAccents: { desayuno:"#f97316", merienda:"#a855f7", almuerzo:"#22c55e", cena:"#3b82f6" },
+    tips: [
+      ["💧","2 litros de agua por día"],
+      ["🚶","30 min de caminata mínimo"],
+      ["⏰","Cenar 2hs antes de dormir"],
+      ["😴","Dormir 7-8 horas"],
+      ["❌","Sin azúcar, frituras ni harinas blancas de noche"],
+    ],
+    days: [
+      { day:"Lunes", short:"LUN", total:1170, meals:{
+        desayuno:{name:"Huevos + tostada integral",items:["2 huevos revueltos","1 tostada pan integral","Café sin azúcar"],kcal:320},
+        merienda:{name:"Fruta + mate",items:["1 manzana","Mate sin azúcar"],kcal:80},
+        almuerzo:{name:"Pollo + ensalada",items:["150g pechuga a la plancha","Lechuga, tomate, pepino","1 cda aceite de oliva"],kcal:420},
+        cena:{name:"Merluza + brócoli",items:["150g merluza al horno","Brócoli al vapor","Ajo y limón"],kcal:350},
+      }},
+      { day:"Martes", short:"MAR", total:1110, meals:{
+        desayuno:{name:"Avena con banana",items:["½ taza avena con agua","½ banana","Té sin azúcar"],kcal:300},
+        merienda:{name:"Yogur natural",items:["150g yogur descremado","Canela"],kcal:90},
+        almuerzo:{name:"Lentejas + vegetales",items:["1 taza lentejas cocidas","Cebolla y pimiento salteados","Ensalada verde"],kcal:430},
+        cena:{name:"Omelette + espinaca",items:["3 claras + 1 huevo","Espinaca y tomate salteados"],kcal:290},
+      }},
+      { day:"Miércoles", short:"MIÉ", total:1170, meals:{
+        desayuno:{name:"Tostadas con palta",items:["2 tostadas pan integral","¼ palta","Café sin azúcar"],kcal:360},
+        merienda:{name:"Zanahoria + mate",items:["1 zanahoria cruda","Mate sin azúcar"],kcal:60},
+        almuerzo:{name:"Salmón + puré de zapallo",items:["150g salmón al horno","Puré de zapallo sin manteca","Rúcula con limón"],kcal:450},
+        cena:{name:"Atún + ensalada",items:["1 lata atún al natural","Lechuga, tomate, pepino","Aceite de oliva"],kcal:300},
+      }},
+      { day:"Jueves", short:"JUE", total:1220, meals:{
+        desayuno:{name:"Huevos pochados",items:["2 huevos pochados","1 rebanada pan integral","Té verde"],kcal:310},
+        merienda:{name:"Naranja + mate",items:["1 naranja","Mate sin azúcar"],kcal:70},
+        almuerzo:{name:"Carne magra + vegetales",items:["150g carne magra a la plancha","Zapallito y pimiento asados","Ensalada mixta"],kcal:480},
+        cena:{name:"Pollo al limón + coliflor",items:["150g pollo a la plancha","Coliflor al vapor","Limón y perejil"],kcal:360},
+      }},
+      { day:"Viernes", short:"VIE", total:1140, meals:{
+        desayuno:{name:"Yogur + granola light",items:["200g yogur descremado","2 cdas granola sin azúcar"],kcal:330},
+        merienda:{name:"Pepino + mate",items:["½ pepino en rodajas","Mate sin azúcar"],kcal:40},
+        almuerzo:{name:"Arroz integral + pollo",items:["½ taza arroz integral","150g pollo desmenuzado","Pimiento y cebolla salteados"],kcal:490},
+        cena:{name:"Sopa de verduras",items:["Caldo con zapallo y apio","1 huevo duro","1 tostada integral"],kcal:280},
+      }},
+      { day:"Sábado", short:"SÁB", total:1330, meals:{
+        desayuno:{name:"Omelette especial",items:["2 huevos + queso descremado","Tomate y cebolla","Café sin azúcar"],kcal:370},
+        merienda:{name:"Manzana + almendras",items:["1 manzana","8 almendras"],kcal:130},
+        almuerzo:{name:"Milanesa al horno",items:["150g milanesa pollo al horno","Ensalada rusa light","Aceite de oliva"],kcal:490},
+        cena:{name:"Pescado + espárragos",items:["200g pescado blanco a la plancha","Espárragos al vapor","Ajo y limón"],kcal:340},
+      }},
+      { day:"Domingo", short:"DOM", total:1230, meals:{
+        desayuno:{name:"Panqueques de avena",items:["½ taza avena + 1 huevo + leche descremada","Fruta fresca","Café sin azúcar"],kcal:380},
+        merienda:{name:"Durazno + mate",items:["1 durazno o 2 ciruelas","Mate sin azúcar"],kcal:60},
+        almuerzo:{name:"Asado light",items:["150g vacío o tira magra","Chimichurri casero","Ensalada grande mixta"],kcal:500},
+        cena:{name:"Revuelto de claras",items:["3 claras + 1 yema","2 tostadas integrales","Tomate y rúcula"],kcal:290},
+      }},
+    ]
+  },
+  mujer: {
+    title: "👩 Mujer · 30+",
+    kcalRange: "1.000–1.200 kcal",
+    kcalTarget: 1200,
+    mealAccents: { desayuno:"#f472b6", merienda:"#a78bfa", almuerzo:"#34d399", cena:"#60a5fa" },
+    tips: [
+      ["💧","2 litros de agua, idealmente antes de cada comida"],
+      ["🚶","30-40 min de caminata o actividad diaria"],
+      ["🌙","Cenar liviano y al menos 2hs antes de dormir"],
+      ["😴","Dormir 7-8hs: el mal sueño sube el cortisol y engorda"],
+      ["🥦","Priorizar proteína y verduras en cada comida"],
+      ["❌","Sin azúcar, harinas blancas ni alcohol"],
+    ],
+    days: [
+      { day:"Lunes", short:"LUN", total:980, meals:{
+        desayuno:{name:"Huevos + tostada integral",items:["2 huevos revueltos","1 tostada pan integral","Té verde sin azúcar"],kcal:280},
+        merienda:{name:"Fruta + mate",items:["1 manzana pequeña","Mate sin azúcar"],kcal:60},
+        almuerzo:{name:"Pollo + ensalada completa",items:["120g pechuga a la plancha","Lechuga, tomate, pepino, zanahoria","1 cdita aceite de oliva"],kcal:360},
+        cena:{name:"Merluza + brócoli",items:["120g merluza al horno","Brócoli al vapor","Ajo y limón"],kcal:280},
+      }},
+      { day:"Martes", short:"MAR", total:960, meals:{
+        desayuno:{name:"Avena con fruta",items:["½ taza avena con agua","½ banana","Té sin azúcar"],kcal:260},
+        merienda:{name:"Yogur natural",items:["150g yogur descremado","Canela o stevia"],kcal:80},
+        almuerzo:{name:"Lentejas + vegetales",items:["¾ taza lentejas cocidas","Zapallito y pimiento salteados","Ensalada verde"],kcal:380},
+        cena:{name:"Omelette de claras",items:["3 claras + 1 huevo","Espinaca y tomate cherry salteados"],kcal:240},
+      }},
+      { day:"Miércoles", short:"MIÉ", total:1000, meals:{
+        desayuno:{name:"Tostadas con palta",items:["2 tostadas pan integral","¼ palta","Café sin azúcar"],kcal:300},
+        merienda:{name:"Zanahoria cruda",items:["1 zanahoria en bastones","Té verde"],kcal:40},
+        almuerzo:{name:"Salmón + puré de zapallo",items:["120g salmón al horno","Puré de zapallo sin manteca","Rúcula con limón"],kcal:400},
+        cena:{name:"Atún + ensalada",items:["1 lata chica atún al natural","Lechuga, tomate, pepino","Aceite de oliva"],kcal:260},
+      }},
+      { day:"Jueves", short:"JUE", total:1030, meals:{
+        desayuno:{name:"Huevos pochados",items:["2 huevos pochados","1 rebanada pan integral","Té de jengibre"],kcal:270},
+        merienda:{name:"Naranja + mate",items:["1 naranja o mandarina","Mate sin azúcar"],kcal:60},
+        almuerzo:{name:"Carne magra + vegetales",items:["120g carne magra a la plancha","Zapallito y pimiento asados","Ensalada mixta"],kcal:400},
+        cena:{name:"Pollo al limón + coliflor",items:["120g pollo a la plancha","Coliflor al vapor","Limón y perejil"],kcal:300},
+      }},
+      { day:"Viernes", short:"VIE", total:940, meals:{
+        desayuno:{name:"Yogur + granola light",items:["150g yogur descremado","1 cda granola sin azúcar","Fruta del bosque"],kcal:250},
+        merienda:{name:"Pepino + limón",items:["½ pepino en rodajas","Sal y limón","Té verde"],kcal:30},
+        almuerzo:{name:"Arroz integral + pollo",items:["⅓ taza arroz integral","120g pollo desmenuzado","Cebolla y pimiento salteados"],kcal:420},
+        cena:{name:"Sopa de verduras",items:["Caldo con zapallo y apio","1 huevo duro","1 tostada integral"],kcal:240},
+      }},
+      { day:"Sábado", short:"SÁB", total:1110, meals:{
+        desayuno:{name:"Omelette especial",items:["2 huevos + queso descremado","Tomate y cebolla morada","Café sin azúcar"],kcal:300},
+        merienda:{name:"Manzana + almendras",items:["1 manzana chica","6 almendras"],kcal:110},
+        almuerzo:{name:"Milanesa al horno",items:["120g milanesa pollo al horno","Ensalada rusa light","Aceite de oliva"],kcal:420},
+        cena:{name:"Pescado + espárragos",items:["150g pescado blanco a la plancha","Espárragos al vapor","Ajo y limón"],kcal:280},
+      }},
+      { day:"Domingo", short:"DOM", total:1030, meals:{
+        desayuno:{name:"Panqueques de avena",items:["½ taza avena + 1 huevo + leche descremada","Fruta fresca","Café sin azúcar"],kcal:320},
+        merienda:{name:"Durazno + mate",items:["1 durazno o 2 ciruelas","Mate sin azúcar"],kcal:50},
+        almuerzo:{name:"Pollo al horno + ensalada",items:["150g pollo al horno con hierbas","Ensalada grande con rúcula","Vinagreta de limón"],kcal:420},
+        cena:{name:"Revuelto de claras",items:["3 claras + 1 yema","1 tostada integral","Tomate y rúcula"],kcal:240},
+      }},
+    ]
+  }
+};
+
+const mealIcons = { desayuno:"🌅", merienda:"🍎", almuerzo:"☀️", cena:"🌙" };
+const mealLabels = { desayuno:"DESAYUNO", merienda:"MERIENDA", almuerzo:"ALMUERZO", cena:"CENA" };
+
+let currentSex = null;
+let currentDay = 0;
+
+function selectSex(sex) {
+  currentSex = sex;
+  currentDay = 0;
+  document.body.className = sex;
+  document.getElementById('selector').style.display = 'none';
+  const plan = document.getElementById('plan');
+  plan.style.display = 'block';
+  plan.classList.add('visible');
+
+  const d = data[sex];
+  document.getElementById('header-title').textContent = d.title;
+  document.getElementById('header-right').textContent = d.kcalRange;
+
+  renderDays();
+  renderDay();
+  renderTips();
+}
+
+function goBack() {
+  document.body.className = '';
+  document.getElementById('selector').style.display = 'flex';
+  document.getElementById('plan').style.display = 'none';
+}
+
+function renderDays() {
+  const d = data[currentSex];
+  const row = document.getElementById('days-row');
+  row.innerHTML = '';
+  d.days.forEach((day, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'day-btn' + (i === currentDay ? ' active' : '');
+    btn.textContent = day.short;
+    btn.onclick = () => { currentDay = i; renderDays(); renderDay(); };
+    row.appendChild(btn);
+  });
+}
+
+function renderDay() {
+  const d = data[currentSex];
+  const day = d.days[currentDay];
+
+  document.getElementById('day-title').textContent = day.day;
+  document.getElementById('kcal-badge').textContent = day.total + ' kcal';
+
+  const pct = Math.min(Math.round((day.total / d.kcalTarget) * 100), 100);
+  const fill = document.getElementById('progress-fill');
+  fill.style.width = pct + '%';
+  fill.className = 'progress-fill' + (day.total > d.kcalTarget ? ' over' : '');
+  document.getElementById('progress-note').textContent =
+    day.total <= d.kcalTarget ? '✓ Dentro del objetivo' : '⚠ Ligeramente sobre el objetivo';
+
+  const mealsEl = document.getElementById('meals');
+  mealsEl.innerHTML = '';
+  ['desayuno','merienda','almuerzo','cena'].forEach(key => {
+    const meal = day.meals[key];
+    const accent = d.mealAccents[key];
+    const card = document.createElement('div');
+    card.className = 'meal-card';
+    card.innerHTML = `
+      <div class="meal-top">
+        <div class="meal-left">
+          <div class="meal-icon" style="background:${accent}1a;border:1px solid ${accent}33">${mealIcons[key]}</div>
+          <div>
+            <div class="meal-tag" style="color:${accent}">${mealLabels[key]}</div>
+            <div class="meal-name">${meal.name}</div>
+          </div>
+        </div>
+        <div class="meal-right">
+          <span class="meal-kcal" style="color:${accent}">${meal.kcal} kcal</span>
+          <span class="meal-arrow">▾</span>
+        </div>
+      </div>
+      <div class="meal-items">
+        ${meal.items.map(item => `
+          <div class="meal-item">
+            <div class="meal-dot" style="background:${accent}"></div>
+            <span style="color:#94a3b8">${item}</span>
+          </div>`).join('')}
+      </div>`;
+    card.onclick = () => card.classList.toggle('open');
+    mealsEl.appendChild(card);
+  });
+}
+
+function renderTips() {
+  const tips = data[currentSex].tips;
+  const el = document.getElementById('tips-list');
+  el.innerHTML = tips.map(([icon, tip]) =>
+    `<div class="tip-row"><span style="font-size:14px">${icon}</span><span>${tip}</span></div>`
+  ).join('');
+}
+</script>
+</body>
+</html>
